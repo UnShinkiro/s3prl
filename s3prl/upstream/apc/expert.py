@@ -53,7 +53,7 @@ class UpstreamExpert(UpstreamBase):
         Main.eval('@load "/home/z5195063/master/NODE-APC/360hModel.bson" trained_model post_net')
 
         Main.data = features
-        Main.eval('data = Float32.(data)')
+        #Main.eval('data = Float32.(data)')
         Main.eval('Flux.reset!(trained_model)')
         feature = Main.eval('feature = trained_model(data)')
         hidden = Main.eval('hidden = post_net(feature)')
