@@ -5,8 +5,7 @@ import torch.nn as nn
 from torch import Tensor
 from torch.nn.utils.rnn import pad_sequence
 
-HIDDEN_DIM = 8
-
+from .audio import create_transform
 
 class UpstreamExpert(nn.Module):
     def __init__(self, ckpt: str = None, model_config: str = None, **kwargs):
@@ -22,6 +21,10 @@ class UpstreamExpert(nn.Module):
                 Can be assigned by the -g option in run_downstream.py
         """
         super().__init__()
+        ckpt = torch.load(ckpt, map_location="cpu")
+        config = ckpt["config"]
+
+        self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
         self.name = "[Example UpstreamExpert]"
 
         print(
@@ -42,7 +45,7 @@ class UpstreamExpert(nn.Module):
         Since we do not do any downsampling in this example upstream
         All keys' corresponding representations have downsample rate of 1
         """
-        return 1
+        return 160
 
     def forward(self, wavs: List[Tensor]) -> Dict[str, Union[Tensor, List[Tensor]]]:
         """
@@ -50,14 +53,28 @@ class UpstreamExpert(nn.Module):
         those Tensors should be in the same shape to train a weighted-sum on them.
         """
 
-        wavs = pad_sequence(wavs, batch_first=True).unsqueeze(-1)
-        # wavs: (batch_size, max_len, 1)
+        features = [self.preprocessor(wav.unsqueeze(0)) for wav in wavs]
+        feat_lengths = [len(feat) for feat in features]
 
-        hidden = self.model1(wavs)
+        features = pad_sequence(features, batch_first=True)
+        print(features.shape())
+        print("\n\n\n\n")
+        feat_lengths = torch.LongTensor(feat_lengths)
+
+        from julia import Main
+        Main.eval('using Pkg; Pkg.activate("NODE-APC")')
+        Main.using("Flux")
+        Main.using("BSON: @load")
+        Main.using("Random")
+        Main.eval('@load "NODE-APC/360hModel.bson" trained_model post_net')
+
+        Main.data = features
+        Main.eval('data = Float32.(data)')
+        Main.eval('Flux.reset!(trained_model)')
+        feature = Main.eval('feature = trained_model(data)')
+        hidden = Main.eval('hidden = post_net(feature)')
         # hidden: (batch_size, max_len, hidden_dim)
-
-        feature = self.model2(hidden)
-        # feature: (batch_size, max_len, hidden_dim)
+        # wavs: (batch_size, max_len, 1)
 
         # The "hidden_states" key will be used as default in many cases
         # Others keys in this example are presented for SUPERB Challenge
