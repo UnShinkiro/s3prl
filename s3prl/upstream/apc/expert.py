@@ -48,7 +48,7 @@ class UpstreamExpert(UpstreamBase):
         Main.using("Flux")
         Main.using("BSON: @load")
         Main.using("Random")
-        Main.eval('@load "NODE-APC/360hModel.bson" trained_model post_net')
+        Main.eval('@load "/home/z5195063/master/NODE-APC/360hModel.bson" trained_model post_net')
 
         Main.data = features
         Main.eval('data = Float32.(data)')
