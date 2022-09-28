@@ -54,6 +54,7 @@ class UpstreamExpert(UpstreamBase):
 
         Main.data = features
         #Main.eval('data = Float32.(data)')
+        Main.eval('print(data.shape())')
         Main.eval('Flux.reset!(trained_model)')
         feature = Main.eval('feature = trained_model(data)')
         hidden = Main.eval('hidden = post_net(feature)')
