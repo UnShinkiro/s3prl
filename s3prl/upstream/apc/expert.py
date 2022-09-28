@@ -1,17 +1,7 @@
-# -*- coding: utf-8 -*- #
-"""*********************************************************************************************"""
-#   FileName     [ upstream/apc/expert.py ]
-#   Synopsis     [ the apc wrapper ]
-#   Author       [ S3PRL ]
-#   Copyright    [ Copyleft(c), Speech Lab, NTU, Taiwan ]
-"""*********************************************************************************************"""
-
-
 import torch
 from torch.nn.utils.rnn import pad_packed_sequence, pad_sequence
 
 from ..interfaces import UpstreamBase
-from .apc import APC
 from .audio import create_transform
 
 
@@ -49,11 +39,38 @@ class UpstreamExpert(UpstreamBase):
         feat_lengths = [len(feat) for feat in features]
 
         features = pad_sequence(features, batch_first=True)
+        print(features.shape())
+        print("\n\n\n\n")
         feat_lengths = torch.LongTensor(feat_lengths)
 
-        predicted_BxLxM, features = self.model(
-            features, feat_lengths, testing=not self.training
-        )
+        from julia import Main
+        Main.eval('using Pkg; Pkg.activate("NODE-APC")')
+        Main.using("Flux")
+        Main.using("BSON: @load")
+        Main.using("Random")
+        Main.eval('@load "NODE-APC/360hModel.bson" trained_model post_net')
 
-        # This forward function only does the model forward
-        # The return dict is then handled by UpstreamBase's hooks
+        Main.data = features
+        Main.eval('data = Float32.(data)')
+        Main.eval('Flux.reset!(trained_model)')
+        feature = Main.eval('feature = trained_model(data)')
+        hidden = Main.eval('hidden = post_net(feature)')
+        # hidden: (batch_size, max_len, hidden_dim)
+        # feature: (batch_size, max_len, hidden_dim)
+
+        # The "hidden_states" key will be used as default in many cases
+        # Others keys in this example are presented for SUPERB Challenge
+        return {
+            "hidden_states": [hidden, feature],
+            "PR": [hidden, feature],
+            "ASR": [hidden, feature],
+            "QbE": [hidden, feature],
+            "SID": [hidden, feature],
+            "ASV": [hidden, feature],
+            "SD": [hidden, feature],
+            "ER": [hidden, feature],
+            "SF": [hidden, feature],
+            "SE": [hidden, feature],
+            "SS": [hidden, feature],
+            "secret": [hidden, feature],
+        }
