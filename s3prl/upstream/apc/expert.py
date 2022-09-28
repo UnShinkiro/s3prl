@@ -44,7 +44,7 @@ class UpstreamExpert(UpstreamBase):
         print("\n\n\n\n")
         feat_lengths = torch.LongTensor(feat_lengths)
 
-        Main.eval('using Pkg; Pkg.activate("NODE-APC")')
+        Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
         Main.using("Flux")
         Main.using("BSON: @load")
         Main.using("Random")
