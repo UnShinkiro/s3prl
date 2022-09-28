@@ -1,3 +1,4 @@
+from julia import Main
 import torch
 from torch.nn.utils.rnn import pad_packed_sequence, pad_sequence
 
@@ -45,7 +46,6 @@ class UpstreamExpert(UpstreamBase):
         print("\n\n\n\n")
         feat_lengths = torch.LongTensor(feat_lengths)
 
-        from julia import Main
         Main.eval('using Pkg; Pkg.activate("NODE-APC")')
         Main.using("Flux")
         Main.using("BSON: @load")
