@@ -13,7 +13,8 @@ class UpstreamExpert(UpstreamBase):
         config = ckpt["config"]
 
         self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
-        self.model = APC(feat_dim, **config["model"]["paras"])
+       	"""
+	self.model = APC(feat_dim, **config["model"]["paras"])
         self.model.load_state_dict(ckpt["model"])
 
         if len(self.hooks) == 0:
@@ -30,6 +31,7 @@ class UpstreamExpert(UpstreamBase):
                 ],
             )
             self.add_hook("self.model", lambda input, output: output[1])
+	"""
 
     def get_downsample_rates(self, key: str) -> int:
         return 160
@@ -39,7 +41,7 @@ class UpstreamExpert(UpstreamBase):
         feat_lengths = [len(feat) for feat in features]
 
         features = pad_sequence(features, batch_first=True)
-        print(features.shape())
+        print(features.size())
         print("\n\n\n\n")
         feat_lengths = torch.LongTensor(feat_lengths)
 
