@@ -55,13 +55,13 @@ class UpstreamExpert(UpstreamBase):
         Main.eval('data = reshape(data, (80,:))')
         Main.eval('print(size(data))')
         Main.eval('Flux.reset!(trained_model)')
-        feature = Main.eval('feature = trained_model(data)')
-        hidden = Main.eval('hidden = post_net(feature)')
+        feature = Main.eval('feature = trained_model(data) |> gpu')
+        hidden = Main.eval('hidden = post_net(feature) |> gpu')
         # hidden: (batch_size, max_len, hidden_dim)
         # feature: (batch_size, max_len, hidden_dim)
         feature = feature.reshape(1,-1,512)
         hidden = hidden.reshape(1,-1,80)
-        feature = torch.from_numpy(feature).cpu()
+        feature = torch.from_numpy(feature).cuda()
         hidden = feature
 
         # The "hidden_states" key will be used as default in many cases
