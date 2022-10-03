@@ -4,7 +4,7 @@ from torch.nn.utils.rnn import pad_packed_sequence, pad_sequence
 
 from ..interfaces import UpstreamBase
 from .audio import create_transform
-
+import pickle
 
 class UpstreamExpert(UpstreamBase):
     def __init__(self, ckpt, **kwargs):
@@ -12,7 +12,9 @@ class UpstreamExpert(UpstreamBase):
 
         ckpt = torch.load(ckpt, map_location="cpu")
         config = ckpt["config"]
-        print(config)
+        file = open('/home/z5195063/master/config.pkl', 'wb')
+        pickle.dump(config, file)
+        file.close()
 
         self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
 
