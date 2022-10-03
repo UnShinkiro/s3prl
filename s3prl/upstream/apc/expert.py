@@ -62,8 +62,8 @@ class UpstreamExpert(UpstreamBase):
         # feature: (batch_size, max_len, hidden_dim)
         feature = feature.reshape(1,-1,512)
         hidden = hidden.reshape(1,-1,80)
-        feature = torch.from_numpy(feature).cpu()
-        hidden = feature.cpu()
+        feature = torch.from_numpy(feature).to("cuda:0")
+        hidden = feature.to("cuda:0")
 
         # The "hidden_states" key will be used as default in many cases
         # Others keys in this example are presented for SUPERB Challenge
