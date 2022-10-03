@@ -64,7 +64,7 @@ class UpstreamExpert(UpstreamBase):
         feature = feature.reshape(1,-1,512)
         hidden = hidden.reshape(1,-1,80)
         feature = torch.from_numpy(feature)
-        hidden = torch.from_numpy(hidden)
+        hidden = torch.from_numpy(feature)
 
         # The "hidden_states" key will be used as default in many cases
         # Others keys in this example are presented for SUPERB Challenge
