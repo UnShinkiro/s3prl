@@ -14,6 +14,12 @@ class UpstreamExpert(UpstreamBase):
         config = ckpt["config"]
 
         self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
+
+        Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
+        Main.using("Flux")
+        Main.using("BSON: @load")
+        Main.using("Random")
+        Main.eval('@load "/home/z5195063/master/NODE-APC/360hModel.bson" trained_model post_net')
        	"""
 	self.model = APC(feat_dim, **config["model"]["paras"])
         self.model.load_state_dict(ckpt["model"])
@@ -35,7 +41,7 @@ class UpstreamExpert(UpstreamBase):
 	"""
 
     def get_downsample_rates(self, key: str) -> int:
-        return 160
+        return 1;
 
     def forward(self, wavs):
         features = [self.preprocessor(wav.unsqueeze(0)) for wav in wavs]
@@ -44,12 +50,6 @@ class UpstreamExpert(UpstreamBase):
         features = pad_sequence(features, batch_first=True)
         feat_lengths = torch.LongTensor(feat_lengths)
         features = features.cpu().numpy()
-
-        Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
-        Main.using("Flux")
-        Main.using("BSON: @load")
-        Main.using("Random")
-        Main.eval('@load "/home/z5195063/master/NODE-APC/360hModel.bson" trained_model post_net')
 
         Main.data = features
         Main.eval('data = Float32.(data)')
