@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#PBS -l select=1:ncpus=16:ngpus=2:mem=64gb
+#PBS -l walltime=24:00:00
+#PBS -M tong.shen@student.unsw.edu.au
+#PBS -m ae
+#PBS -j oe
+#PBS -o /home/z5195063/Output_Report
+
+cd $PBS_O_WORKDIR
+
+source /home/z5195063/.venv/master/bin/activate
+cp /srv/scratch/z5195063/dev-clean.tar.gz $TMPDIR
+cp /srv/scratch/z5195063/test-clean.tar.gz $TMPDIR
+cp /srv/scratch/z5195063/train-clean-100.tar.gz $TMPDIR
+cd $TMPDIR
+mkdir LibriSpeech
+cp /srv/scratch/z5195063/change_ymal.sh $TMPDIR/LibriSpeech
+tar -xf dev-clean.tar.gz
+tar -xf test-clean.tar.gz
+tar -xf train-clean-100.tar.gz
+cd LibriSpeech
+bash change_ymal.sh
+module load julia/1.7.3 
+
+cp /home/z5195063/s3prl $TMPDIR
+cd $TMPDIR/s3prl/s3prl
+python3 run_downstream.py -n CUSTOM_CPC -m train -u customized_upstream -d ctc -c downstream/ctc/libriphone.yaml
+
+#qsub -I -l select=1:ncpus=8:ngpus=1:mem=32gb,walltime=02:00:00
