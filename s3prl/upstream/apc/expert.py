@@ -52,7 +52,7 @@ class UpstreamExpert(UpstreamBase):
         Main.using("Random")
         Main.eval('@load "/home/z5195063/master/NODE-APC/360hModel.bson" trained_model post_net')
 
-        print(Main.trained_model)
+        
         Main.data = features.cpu().numpy()
         Main.eval('data = Float32.(data)')
         Main.eval('data = reshape(data, (80,:))')
