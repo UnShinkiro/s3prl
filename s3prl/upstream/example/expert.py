@@ -1,7 +1,9 @@
+from julia import Main
 from collections import OrderedDict
 from typing import Dict, List, Union
 
 import torch
+import pickle
 import torch.nn as nn
 from torch import Tensor
 from torch.nn.utils.rnn import pad_sequence
@@ -22,11 +24,18 @@ class UpstreamExpert(nn.Module):
                 Can be assigned by the -g option in run_downstream.py
         """
         super().__init__(**kwargs)
-        ckpt = torch.load(ckpt, map_location="cpu")
-        config = ckpt["config"]
+        file = open('/home/z5195063/master/config.pkl', 'rb')
+        config = pickle.load(file)
+        file.close()
 
         self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
         self.name = "[Example UpstreamExpert]"
+
+        Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
+        Main.using("Flux")
+        Main.using("BSON: @load")
+        Main.using("Random")
+        Main.eval('@load "/home/z5195063/master/NODE-APC/360hModel.bson" trained_model post_net')
 
         print(
             f"{self.name} - You can use model_config to construct your customized model: {model_config}"
@@ -38,8 +47,6 @@ class UpstreamExpert(nn.Module):
         )
 
         # The model needs to be a nn.Module for finetuning, not required for representation extraction
-        self.model1 = nn.Linear(1, HIDDEN_DIM)
-        self.model2 = nn.Linear(HIDDEN_DIM, HIDDEN_DIM)
 
     def get_downsample_rates(self, key: str) -> int:
         """
@@ -58,24 +65,22 @@ class UpstreamExpert(nn.Module):
         feat_lengths = [len(feat) for feat in features]
 
         features = pad_sequence(features, batch_first=True)
-        print(features.shape())
-        print("\n\n\n\n")
         feat_lengths = torch.LongTensor(feat_lengths)
-
-        from julia import Main
-        Main.eval('using Pkg; Pkg.activate("NODE-APC")')
-        Main.using("Flux")
-        Main.using("BSON: @load")
-        Main.using("Random")
-        Main.eval('@load "NODE-APC/360hModel.bson" trained_model post_net')
+        features = features.cpu().numpy()
 
         Main.data = features
         Main.eval('data = Float32.(data)')
+        Main.eval('data = reshape(data, (80,:))')
         Main.eval('Flux.reset!(trained_model)')
         feature = Main.eval('feature = trained_model(data)')
         hidden = Main.eval('hidden = post_net(feature)')
         # hidden: (batch_size, max_len, hidden_dim)
-        # wavs: (batch_size, max_len, 1)
+        # feature: (batch_size, max_len, hidden_dim)
+        feature = feature.reshape(1,-1,512)
+        hidden = hidden.reshape(1,-1,80)
+        feature = torch.from_numpy(feature).cuda()
+        print(feature.size())
+        hidden = feature
 
         # The "hidden_states" key will be used as default in many cases
         # Others keys in this example are presented for SUPERB Challenge
