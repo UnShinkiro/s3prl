@@ -35,7 +35,6 @@ class UpstreamExpert(nn.Module):
         Main.using("Flux")
         Main.using("BSON: @load")
         Main.using("Random")
-        Main.using("CUDA")
         Main.eval('@load "/home/z5195063/master/NODE-APC/360hModel.bson" trained_model post_net')
 
         print(
@@ -73,9 +72,8 @@ class UpstreamExpert(nn.Module):
         Main.data = features
         Main.eval('data = Float32.(data)')
         Main.eval(f'data = reshape(data, (80,{batch_size},:))')
-        Main.eval('data_gpu = data |> gpu')
         Main.eval('Flux.reset!(trained_model)')
-        feature = Main.eval('feature = trained_model(data_gpu)')
+        feature = Main.eval('feature = trained_model(data)')
         hidden = Main.eval('hidden = post_net(feature)')
         # hidden: (batch_size, max_len, hidden_dim)
         # feature: (batch_size, max_len, hidden_dim)
