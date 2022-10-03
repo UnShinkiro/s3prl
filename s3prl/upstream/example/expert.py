@@ -67,6 +67,7 @@ class UpstreamExpert(nn.Module):
         features = pad_sequence(features, batch_first=True)
         feat_lengths = torch.LongTensor(feat_lengths)
         features = features.cpu().numpy()
+        print(features.size())
 
         Main.data = features
         Main.eval('data = Float32.(data)')
