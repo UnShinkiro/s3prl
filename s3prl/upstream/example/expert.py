@@ -53,7 +53,7 @@ class UpstreamExpert(nn.Module):
         Since we do not do any downsampling in this example upstream
         All keys' corresponding representations have downsample rate of 1
         """
-        return 80
+        return 160
 
     def forward(self, wavs: List[Tensor]) -> Dict[str, Union[Tensor, List[Tensor]]]:
         """
@@ -66,19 +66,19 @@ class UpstreamExpert(nn.Module):
 
         features = pad_sequence(features, batch_first=True)
         feat_lengths = torch.LongTensor(feat_lengths)
-        print(features.size())
+        batch_size = (features.size(1))
         features = features.cpu().numpy()
 
         Main.data = features
         Main.eval('data = Float32.(data)')
-        Main.eval('data = reshape(data, (80,:))')
+        Main.eval(f'data = reshape(data, (80,:,{batch_size}))')
         Main.eval('Flux.reset!(trained_model)')
         feature = Main.eval('feature = trained_model(data)')
         hidden = Main.eval('hidden = post_net(feature)')
         # hidden: (batch_size, max_len, hidden_dim)
         # feature: (batch_size, max_len, hidden_dim)
-        feature = feature.reshape(1,-1,512)
-        hidden = hidden.reshape(1,-1,80)
+        feature = feature.reshape(batch_size,-1,512)
+        hidden = hidden.reshape(batch_size,-1,80)
         feature = torch.from_numpy(feature).cuda()
         print(feature.size())
         hidden = feature
