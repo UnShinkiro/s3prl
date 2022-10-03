@@ -54,7 +54,6 @@ class UpstreamExpert(UpstreamBase):
         Main.data = features
         Main.eval('data = Float32.(data)')
         Main.eval('data = reshape(data, (80,:))')
-        Main.eval('print(size(data))')
         Main.eval('Flux.reset!(trained_model)')
         feature = Main.eval('feature = trained_model(data)')
         hidden = Main.eval('hidden = post_net(feature)')
@@ -62,8 +61,9 @@ class UpstreamExpert(UpstreamBase):
         # feature: (batch_size, max_len, hidden_dim)
         feature = feature.reshape(1,-1,512)
         hidden = hidden.reshape(1,-1,80)
-        feature = torch.from_numpy(feature).to("cuda:0")
-        hidden = feature.to("cuda:0")
+        feature = torch.from_numpy(feature).cuda()
+        print(feature.size())
+        hidden = feature
 
         # The "hidden_states" key will be used as default in many cases
         # Others keys in this example are presented for SUPERB Challenge
