@@ -55,7 +55,5 @@ class UpstreamExpert(UpstreamBase):
             features, feat_lengths, testing=not self.training
         )
 
-        print(features.size())
-
         # This forward function only does the model forward
         # The return dict is then handled by UpstreamBase's hooks
