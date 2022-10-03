@@ -43,6 +43,7 @@ class UpstreamExpert(UpstreamBase):
 
         features = pad_sequence(features, batch_first=True)
         feat_lengths = torch.LongTensor(feat_lengths)
+        features = features.cpu().numpy()
 
         Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
         Main.using("Flux")
@@ -50,7 +51,7 @@ class UpstreamExpert(UpstreamBase):
         Main.using("Random")
         Main.eval('@load "/home/z5195063/master/NODE-APC/360hModel.bson" trained_model post_net')
 
-        Main.data = features.cpu().numpy()
+        Main.data = features
         Main.eval('data = Float32.(data)')
         Main.eval('data = reshape(data, (80,:))')
         Main.eval('print(size(data))')
@@ -61,8 +62,8 @@ class UpstreamExpert(UpstreamBase):
         # feature: (batch_size, max_len, hidden_dim)
         feature = feature.reshape(1,-1,512)
         hidden = hidden.reshape(1,-1,80)
-        feature = torch.from_numpy(feature).cuda()
-        hidden = feature
+        feature = torch.from_numpy(feature).cpu()
+        hidden = feature.cpu()
 
         # The "hidden_states" key will be used as default in many cases
         # Others keys in this example are presented for SUPERB Challenge
