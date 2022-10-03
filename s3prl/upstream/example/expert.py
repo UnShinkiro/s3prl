@@ -23,7 +23,7 @@ class UpstreamExpert(nn.Module):
                 Might not needed if you also save that in your checkpoint file.
                 Can be assigned by the -g option in run_downstream.py
         """
-        super().__init__(**kwargs)
+        super().__init__()
         file = open('/home/z5195063/master/config.pkl', 'rb')
         config = pickle.load(file)
         file.close()
