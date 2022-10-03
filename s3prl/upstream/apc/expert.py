@@ -12,6 +12,7 @@ class UpstreamExpert(UpstreamBase):
 
         ckpt = torch.load(ckpt, map_location="cpu")
         config = ckpt["config"]
+        print(config)
 
         self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
 

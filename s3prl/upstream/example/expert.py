@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from typing import Dict, List, Union
 
+import tensor
 import torch.nn as nn
 from torch import Tensor
 from torch.nn.utils.rnn import pad_sequence
@@ -45,7 +46,7 @@ class UpstreamExpert(nn.Module):
         Since we do not do any downsampling in this example upstream
         All keys' corresponding representations have downsample rate of 1
         """
-        return 160
+        return 1
 
     def forward(self, wavs: List[Tensor]) -> Dict[str, Union[Tensor, List[Tensor]]]:
         """
