@@ -73,9 +73,9 @@ class UpstreamExpert(nn.Module):
         Main.data = features
         Main.eval('data = Float32.(data)')
         Main.eval(f'data = reshape(data, (80,{batch_size},:))')
-        Main.eval('data = data |> gpu')
+        Main.eval('data_gpu = data |> gpu')
         Main.eval('Flux.reset!(trained_model)')
-        feature = Main.eval('feature = trained_model(data)')
+        feature = Main.eval('feature = trained_model(data_gpu)')
         hidden = Main.eval('hidden = post_net(feature)')
         # hidden: (batch_size, max_len, hidden_dim)
         # feature: (batch_size, max_len, hidden_dim)
