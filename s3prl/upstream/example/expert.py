@@ -53,7 +53,7 @@ class UpstreamExpert(nn.Module):
         Since we do not do any downsampling in this example upstream
         All keys' corresponding representations have downsample rate of 1
         """
-        return 1
+        return 80
 
     def forward(self, wavs: List[Tensor]) -> Dict[str, Union[Tensor, List[Tensor]]]:
         """

@@ -1,10 +1,19 @@
-from julia import Main
+# -*- coding: utf-8 -*- #
+"""*********************************************************************************************"""
+#   FileName     [ upstream/apc/expert.py ]
+#   Synopsis     [ the apc wrapper ]
+#   Author       [ S3PRL ]
+#   Copyright    [ Copyleft(c), Speech Lab, NTU, Taiwan ]
+"""*********************************************************************************************"""
+
+
 import torch
 from torch.nn.utils.rnn import pad_packed_sequence, pad_sequence
 
 from ..interfaces import UpstreamBase
+from .apc import APC
 from .audio import create_transform
-import pickle
+
 
 class UpstreamExpert(UpstreamBase):
     def __init__(self, ckpt, **kwargs):
@@ -12,19 +21,9 @@ class UpstreamExpert(UpstreamBase):
 
         ckpt = torch.load(ckpt, map_location="cpu")
         config = ckpt["config"]
-        file = open('/home/z5195063/master/config.pkl', 'wb')
-        pickle.dump(config, file)
-        file.close()
 
         self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
-
-        Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
-        Main.using("Flux")
-        Main.using("BSON: @load")
-        Main.using("Random")
-        Main.eval('@load "/home/z5195063/master/NODE-APC/360hModel.bson" trained_model post_net')
-       	"""
-	self.model = APC(feat_dim, **config["model"]["paras"])
+        self.model = APC(feat_dim, **config["model"]["paras"])
         self.model.load_state_dict(ckpt["model"])
 
         if len(self.hooks) == 0:
@@ -41,10 +40,9 @@ class UpstreamExpert(UpstreamBase):
                 ],
             )
             self.add_hook("self.model", lambda input, output: output[1])
-	"""
 
     def get_downsample_rates(self, key: str) -> int:
-        return 80
+        return 160
 
     def forward(self, wavs):
         features = [self.preprocessor(wav.unsqueeze(0)) for wav in wavs]
@@ -52,35 +50,12 @@ class UpstreamExpert(UpstreamBase):
 
         features = pad_sequence(features, batch_first=True)
         feat_lengths = torch.LongTensor(feat_lengths)
-        features = features.cpu().numpy()
 
-        Main.data = features
-        Main.eval('data = Float32.(data)')
-        Main.eval('data = reshape(data, (80,:))')
-        Main.eval('Flux.reset!(trained_model)')
-        feature = Main.eval('feature = trained_model(data)')
-        hidden = Main.eval('hidden = post_net(feature)')
-        # hidden: (batch_size, max_len, hidden_dim)
-        # feature: (batch_size, max_len, hidden_dim)
-        feature = feature.reshape(1,-1,512)
-        hidden = hidden.reshape(1,-1,80)
-        feature = torch.from_numpy(feature).cuda()
-        print(feature.size())
-        hidden = feature
+        predicted_BxLxM, features = self.model(
+            features, feat_lengths, testing=not self.training
+        )
 
-        # The "hidden_states" key will be used as default in many cases
-        # Others keys in this example are presented for SUPERB Challenge
-        return {
-            "hidden_states": [hidden, feature],
-            "PR": [hidden, feature],
-            "ASR": [hidden, feature],
-            "QbE": [hidden, feature],
-            "SID": [hidden, feature],
-            "ASV": [hidden, feature],
-            "SD": [hidden, feature],
-            "ER": [hidden, feature],
-            "SF": [hidden, feature],
-            "SE": [hidden, feature],
-            "SS": [hidden, feature],
-            "secret": [hidden, feature],
-        }
+        print(features.size())
+
+        # This forward function only does the model forward
+        # The return dict is then handled by UpstreamBase's hooks
