@@ -254,7 +254,7 @@ class Featurizer(nn.Module):
             paired_feature.size(1)
             - round(max([len(wav) for wav in paired_wavs]) / self.downsample_rate)
         )
-        print(paired_feature.size(1))
+        print(round(max([len(wav) for wav in paired_wavs]) / self.downsample_rate))
         assert (
             length_diff < TOLERABLE_SEQLEN_DIFF
         ), f"{length_diff} >= {TOLERABLE_SEQLEN_DIFF}"
