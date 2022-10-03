@@ -41,7 +41,7 @@ class UpstreamExpert(UpstreamBase):
 	"""
 
     def get_downsample_rates(self, key: str) -> int:
-        return 160
+        return 320
 
     def forward(self, wavs):
         features = [self.preprocessor(wav.unsqueeze(0)) for wav in wavs]
