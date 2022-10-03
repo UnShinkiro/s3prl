@@ -42,8 +42,6 @@ class UpstreamExpert(UpstreamBase):
         feat_lengths = [len(feat) for feat in features]
 
         features = pad_sequence(features, batch_first=True)
-        print(features.cpu().numpy())
-        print("\n\n\n\n")
         feat_lengths = torch.LongTensor(feat_lengths)
 
         Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
@@ -63,7 +61,7 @@ class UpstreamExpert(UpstreamBase):
         # feature: (batch_size, max_len, hidden_dim)
         feature = feature.reshape(1,-1,512)
         hidden = hidden.reshape(1,-1,80)
-        feature = torch.from_numpy(feature)
+        feature = torch.from_numpy(feature).cpu()
         hidden = feature
 
         # The "hidden_states" key will be used as default in many cases
