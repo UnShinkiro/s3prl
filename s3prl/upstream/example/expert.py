@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import Dict, List, Union
 
-import tensor
+import torch
 import torch.nn as nn
 from torch import Tensor
 from torch.nn.utils.rnn import pad_sequence
