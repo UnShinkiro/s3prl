@@ -35,7 +35,7 @@ class UpstreamExpert(nn.Module):
         Main.using("Flux")
         Main.using("BSON: @load")
         Main.using("Random")
-        Main.eval('@load "/home/z5195063/master/NODE-APC/360hModel.bson" trained_model post_net')
+        Main.eval('@load "/srv/scratch/z5195063/360hModel.bson" trained_model post_net')
 
         print(
             f"{self.name} - You can use model_config to construct your customized model: {model_config}"
