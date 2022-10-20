@@ -65,7 +65,6 @@ class UpstreamExpert(nn.Module):
         """
 
         features = [self.preprocessor(wav.unsqueeze(0)) for wav in wavs]
-        feat_lengths = [len(feat) for feat in features]
 
         features = pad_sequence(features, batch_first=True)
         features = features.cpu().numpy()
@@ -76,7 +75,6 @@ class UpstreamExpert(nn.Module):
             Main.data = features[file_idx,:,:]
             Main.eval('data = Float32.(data)')
             Main.eval('data = [data[frame_idx,:] for frame_idx=1:size(data)[1]]')
-            Main.eval('data = data |> gpu')
             feature = Main.eval('feature = trained_model.(data) |> gpu')
             ret_feature.append(feature)
         
