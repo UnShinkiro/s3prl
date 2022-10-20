@@ -38,7 +38,7 @@ class UpstreamExpert(nn.Module):
         Main.using("CUDA")
         Main.using("Random")
         Main.eval('@load "/srv/scratch/z5195063/360hModel_v3.bson" trained_model post_net')
-        Main.eval('trained_model |> gpu')
+        Main.eval('trained_model')
 
         print(
             f"{self.name} - You can use model_config to construct your customized model: {model_config}"
@@ -71,11 +71,13 @@ class UpstreamExpert(nn.Module):
         feat_lengths = torch.LongTensor(feat_lengths)
         batch_size = (features.size()[0])
         features = features.cpu().numpy()
+        print(np.shape(features))
         
         ret_feature = []
         for file_idx in range(np.shape(features)[0]):
             Main.eval('Flux.reset!(trained_model)')
             Main.data = features[file_idx,:,:]
+            Main.eval('print(size(data))')
             Main.eval('data = Float32.(data)')
             Main.eval('data = [data[frame_idx,:] for frame_idx=1:size(data)[1]]')
             feature = Main.eval('feature = trained_model.(data)')
