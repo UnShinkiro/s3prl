@@ -78,7 +78,6 @@ class UpstreamExpert(nn.Module):
             Main.data = features[file_idx,:,:]
             Main.eval('data = Float32.(data)')
             Main.eval('data = [data[:,frame_idx] for frame_idx=1:size(data)[2]]')
-            Main.eval('data |> gpu')
             feature = Main.eval('feature = trained_model.(data)')
             ret_feature.append(feature)
         
