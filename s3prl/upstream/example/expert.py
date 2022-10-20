@@ -4,6 +4,7 @@ from typing import Dict, List, Union
 
 import torch
 import pickle
+import numpy as np
 import torch.nn as nn
 from torch import Tensor
 from torch.nn.utils.rnn import pad_sequence
@@ -34,8 +35,10 @@ class UpstreamExpert(nn.Module):
         Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
         Main.using("Flux")
         Main.using("BSON: @load")
+        Main.using("CUDA")
         Main.using("Random")
         Main.eval('@load "/srv/scratch/z5195063/360hModel_v3.bson" trained_model post_net')
+        Main.eval('trained_model |> gpu')
 
         print(
             f"{self.name} - You can use model_config to construct your customized model: {model_config}"
@@ -69,33 +72,31 @@ class UpstreamExpert(nn.Module):
         batch_size = (features.size()[0])
         features = features.cpu().numpy()
         
-        Main.data = features
-        Main.eval('data = Float32.(data)')
-        Main.eval(f'data = reshape(data, (80,{batch_size},:))')
-        Main.eval('Flux.reset!(trained_model)')
-        feature = Main.eval('feature = trained_model(data)')
-        hidden = Main.eval('hidden = post_net(feature)')
-        # hidden: (batch_size, max_len, hidden_dim)
-        # feature: (batch_size, max_len, hidden_dim)
-        feature = feature.reshape(batch_size,-1,512)
-        hidden = hidden.reshape(batch_size,-1,80)
-        feature = torch.from_numpy(feature).cuda()
-
-        hidden = feature
+        ret_feature = []
+        for file_idx in range(np.shape(features)[0]):
+            Main.eval('Flux.reset!(trained_model)')
+            Main.data = features[file_idx,:,:]
+            Main.eval('data = Float32.(data)')
+            Main.eval('data = [data[:,frame_idx] for frame_idx=1:size(data)[2]] |> gpu')
+            feature = Main.eval('feature = trained_model.(data)')
+            ret_feature.append(feature)
+        
+        ret_feature = np.asarray(ret_feature)
+        ret_feature = torch.from_numpy(ret_feature).cuda()
 
         # The "hidden_states" key will be used as default in many cases
         # Others keys in this example are presented for SUPERB Challenge
         return {
-            "hidden_states": [hidden, feature],
-            "PR": [hidden, feature],
-            "ASR": [hidden, feature],
-            "QbE": [hidden, feature],
-            "SID": [hidden, feature],
-            "ASV": [hidden, feature],
-            "SD": [hidden, feature],
-            "ER": [hidden, feature],
-            "SF": [hidden, feature],
-            "SE": [hidden, feature],
-            "SS": [hidden, feature],
-            "secret": [hidden, feature],
+            "hidden_states": [ret_feature, ret_feature],
+            "PR": [ret_feature, ret_feature],
+            "ASR": [ret_feature, ret_feature],
+            "QbE": [ret_feature, ret_feature],
+            "SID": [ret_feature, ret_feature],
+            "ASV": [ret_feature, ret_feature],
+            "SD": [ret_feature, ret_feature],
+            "ER": [ret_feature, ret_feature],
+            "SF": [ret_feature, ret_feature],
+            "SE": [ret_feature, ret_feature],
+            "SS": [ret_feature, ret_feature],
+            "secret": [ret_feature, ret_feature],
         }
