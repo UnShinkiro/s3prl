@@ -77,9 +77,9 @@ class UpstreamExpert(nn.Module):
         for file_idx in range(np.shape(features)[0]):
             Main.eval('Flux.reset!(trained_model)')
             Main.data = features[file_idx,:,:]
-            Main.eval('print(size(data))')
             Main.eval('data = Float32.(data)')
             Main.eval('data = [data[frame_idx,:] for frame_idx=1:size(data)[1]]')
+            Main.eval('print(size(data))')
             feature = Main.eval('feature = trained_model.(data)')
             ret_feature.append(feature)
         
