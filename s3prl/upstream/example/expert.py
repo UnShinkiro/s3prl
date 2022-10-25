@@ -69,11 +69,11 @@ class UpstreamExpert(nn.Module):
         features = pad_sequence(features, batch_first=True)
         features = features.cpu().numpy()
         
-        print('Before:' + np.shape(features))
+        print('Before: ', np.shape(features))
         input_dim = np.shape(features)[-1]
         length = np.shape(features)[-2]
         features = np.reshape(features, (-1,length,input_dim))
-        print('After: ' + np.shape(features))
+        print('After: ', np.shape(features))
         ret_feature = []
         for file in features:
             Main.eval('Flux.reset!(trained_model)')
