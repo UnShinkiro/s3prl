@@ -68,17 +68,20 @@ class UpstreamExpert(nn.Module):
 
         features = pad_sequence(features, batch_first=True)
         features = features.cpu().numpy()
-        print(np.shape(features))
-        length = np.shape(features)[-1]
-        features = np.reshape(features, (-1,80,length))
-        print(np.shape(features))
         
+        print('Before:' + np.shape(features))
+        input_dim = np.shape(features)[-1]
+        length = np.shape(features)[-2]
+        features = np.reshape(features, (-1,length,input_dim))
+        print('After: ' + np.shape(features))
         ret_feature = []
         for file in features:
             Main.eval('Flux.reset!(trained_model)')
             Main.data = file
             Main.eval('data = Float32.(data)')
-            data = Main.eval('data = [data[frame_idx, :] for frame_idx=1:size(data)[1]]')
+            Main.eval('println(size(data))')
+            data = Main.eval('data = [data[frame_idx,:] for frame_idx=1:size(data)[1]]')
+            Main.eval('println(size(data))')
             feature = Main.eval('feature = trained_model.(data)')
             ret_feature.append(feature)
         
