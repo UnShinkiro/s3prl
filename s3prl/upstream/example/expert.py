@@ -68,8 +68,10 @@ class UpstreamExpert(nn.Module):
 
         features = pad_sequence(features, batch_first=True)
         features = features.cpu().numpy()
+        print(np.shape(features))
         length = np.shape(features)[-1]
         features = np.reshape(features, (-1,80,length))
+        print(np.shape(features))
         
         ret_feature = []
         for file in features:
