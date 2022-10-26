@@ -38,7 +38,7 @@ class UpstreamExpert(nn.Module):
         Main.using("CUDA")
         Main.using("Random")
         Main.eval('@load "/srv/scratch/z5195063/360hModel_v3.bson" trained_model post_net')
-        #Main.eval('trained_model = trained_model |> gpu')
+        Main.eval('trained_model = trained_model |> gpu')
 
         print(
             f"{self.name} - You can use model_config to construct your customized model: {model_config}"
@@ -79,9 +79,8 @@ class UpstreamExpert(nn.Module):
             Main.eval('Flux.reset!(trained_model)')
             Main.data = file
             Main.eval('data = Float32.(data)')
-            Main.eval('println(size(data))')
-            data = Main.eval('data = [data[frame_idx,:] for frame_idx=1:size(data)[1]]')
-            Main.eval('println(size(data))')
+            Main.eval('data = [data[frame_idx,:] for frame_idx=1:size(data)[1]]')
+            Main.eval('data = cu(data)')
             feature = Main.eval('feature = trained_model.(data)')
             ret_feature.append(feature)
         
