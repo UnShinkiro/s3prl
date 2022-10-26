@@ -70,7 +70,6 @@ class UpstreamExpert(nn.Module):
         features = pad_sequence(features, batch_first=True)
         feat_lengths = torch.LongTensor(feat_lengths)
         features = features.cpu().numpy()
-        print(feat_lengths)
         
         print('Before: ', np.shape(features))
         input_dim = np.shape(features)[-1]
@@ -78,7 +77,8 @@ class UpstreamExpert(nn.Module):
         features = np.reshape(features, (-1,length,input_dim))
         print('After: ', np.shape(features))
         ret_feature = []
-        for file in features:
+        for count, file in enumerate(features):
+            print(feat_lengths[count])
             Main.eval('Flux.reset!(trained_model)')
             Main.data = file
             Main.eval('data = Float32.(data)')
