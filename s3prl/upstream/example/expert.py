@@ -65,9 +65,12 @@ class UpstreamExpert(nn.Module):
         """
 
         features = [self.preprocessor(wav.unsqueeze(0)) for wav in wavs]
+        feat_lengths = [len(feat) for feat in features]
 
         features = pad_sequence(features, batch_first=True)
+        feat_lengths = torch.LongTensor(feat_lengths)
         features = features.cpu().numpy()
+        print(feat_lengths)
         
         print('Before: ', np.shape(features))
         input_dim = np.shape(features)[-1]
