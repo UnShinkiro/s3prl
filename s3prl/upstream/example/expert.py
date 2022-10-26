@@ -33,6 +33,7 @@ class UpstreamExpert(nn.Module):
         self.name = "[Example UpstreamExpert]"
 
         Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
+        Main.using("Adapt")
         Main.using("Flux")
         Main.using("BSON: @load")
         Main.using("CUDA")
