@@ -83,10 +83,10 @@ class UpstreamExpert(nn.Module):
             #Main.eval('CUDA.allowscalar(true)')
             #Main.eval('data = data |> gpu')
             feature = Main.eval('feature = [trained_model(frame) for frame in data]')
-            print(feature)
             ret_feature.append(feature)
         
         ret_feature = np.asarray(ret_feature)
+        print(np.shape(ret_feature))
         ret_feature = torch.from_numpy(ret_feature).cuda()
 
         # The "hidden_states" key will be used as default in many cases
