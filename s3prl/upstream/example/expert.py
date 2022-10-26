@@ -78,17 +78,19 @@ class UpstreamExpert(nn.Module):
         print('After: ', np.shape(features))
         ret_feature = []
         for count, file in enumerate(features):
-            print(feat_lengths[count].item())
+            print()
             Main.eval('Flux.reset!(trained_model)')
             Main.data = file
             Main.eval('data = Float32.(data)')
-            Main.eval('data = [data[frame_idx,:] for frame_idx=1:size(data)[1]]')
+            Main.eval(f'data = [data[frame_idx,:] for frame_idx=1:{feat_lengths[count].item()}]')
             #Main.eval('CUDA.allowscalar(true)')
             #Main.eval('data = data |> gpu')
             feature = Main.eval('feature = [trained_model(frame) for frame in data]')
             ret_feature.append(feature)
         
         ret_feature = np.asarray(ret_feature)
+        print(np.shape(ret_feature))
+        ret_feature = pad_sequence(ret_feature, batch_first=True)
         print(np.shape(ret_feature))
         ret_feature = torch.from_numpy(ret_feature).cuda()
 
