@@ -80,7 +80,7 @@ class UpstreamExpert(nn.Module):
             Main.data = file
             Main.eval('data = Float32.(data)')
             Main.eval('data = [data[frame_idx,:] for frame_idx=1:size(data)[1]]')
-            Main.eval('data = cu(data)')
+            Main.eval('data = adapt(CuArray, data)')
             feature = Main.eval('feature = trained_model.(data)')
             ret_feature.append(feature)
         
