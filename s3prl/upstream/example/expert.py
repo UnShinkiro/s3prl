@@ -33,7 +33,6 @@ class UpstreamExpert(nn.Module):
         self.name = "[Example UpstreamExpert]"
 
         Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
-        Main.using("Adapt")
         Main.using("Flux")
         Main.using("BSON: @load")
         Main.using("CUDA")
@@ -81,8 +80,8 @@ class UpstreamExpert(nn.Module):
             Main.data = file
             Main.eval('data = Float32.(data)')
             Main.eval('data = [data[frame_idx,:] for frame_idx=1:size(data)[1]]')
-            Main.eval('data = adapt(CuArray, data)')
-            feature = Main.eval('feature = trained_model.(data)')
+            feature = Main.eval('feature = [trained_model(gpu(frame)) for frame in data]')
+            print(feature)
             ret_feature.append(feature)
         
         ret_feature = np.asarray(ret_feature)
