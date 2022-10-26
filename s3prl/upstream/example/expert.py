@@ -78,7 +78,7 @@ class UpstreamExpert(nn.Module):
         print('After: ', np.shape(features))
         ret_feature = []
         for count, file in enumerate(features):
-            print(feat_lengths[count].int())
+            print(feat_lengths[count].item())
             Main.eval('Flux.reset!(trained_model)')
             Main.data = file
             Main.eval('data = Float32.(data)')
