@@ -83,7 +83,7 @@ class UpstreamExpert(nn.Module):
             Main.eval('data = Float32.(data)')
             Main.eval(f'data = [data[frame_idx,:] for frame_idx=1:{feat_lengths[count].item()}]')
             Main.eval('print(typeof(data))')
-            Main.eval('data = [cu(frame) for frame in data]')
+            Main.eval('data = cu.(data)')
             Main.eval('print(typeof(data))')
             #Main.eval('CUDA.allowscalar(true)')
             #Main.eval('data = data |> gpu')
