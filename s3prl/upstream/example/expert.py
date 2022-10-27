@@ -81,8 +81,9 @@ class UpstreamExpert(nn.Module):
             Main.eval('Flux.reset!(trained_model)')
             Main.data = file
             Main.eval('data = Float32.(data)')
-            #Main.eval(f'data = [data[frame_idx,:] for frame_idx=1:{feat_lengths[count].item()}]')
-            Main.eval(f'data = [cu(data[frame_idx,:]) for frame_idx=1:{feat_lengths[count].item()}]')
+            Main.eval(f'data = [data[frame_idx,:] for frame_idx=1:{feat_lengths[count].item()}]')
+            Main.eval('print(typeof(data))')
+            #Main.eval(f'data = [cu(data[frame_idx,:]) for frame_idx=1:{feat_lengths[count].item()}]')
             #Main.eval('CUDA.allowscalar(true)')
             #Main.eval('data = data |> gpu')
             feature = Main.eval(f'feature = [idx <= size(data)[1] ? trained_model(data[idx]) : zeros(Float32,512) for idx=1:{length}]')
