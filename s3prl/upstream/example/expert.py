@@ -82,12 +82,12 @@ class UpstreamExpert(nn.Module):
             Main.data = file
             Main.eval('data = Float32.(data)')
             Main.eval(f'data = [data[frame_idx,:] for frame_idx=1:{feat_lengths[count].item()}]')
-            Main.eval('print(typeof(data))')
-            Main.eval('data = cu.(data)')
-            Main.eval('print(typeof(data))')
+            #Main.eval('print(typeof(data))')
+            #Main.eval('data1 = cu.(data)')
+            #Main.eval('print(typeof(data1))')
             #Main.eval('CUDA.allowscalar(true)')
             #Main.eval('data = data |> gpu')
-            feature = Main.eval(f'feature = [idx <= size(data)[1] ? trained_model(data[idx]) : zeros(Float32,512) for idx=1:{length}]')
+            feature = Main.eval(f'feature = [idx <= size(data)[1] ? trained_model((data[idx])) : zeros(Float32,512) for idx=1:{length}]')
             print(np.shape(feature))
             ret_feature.append(feature)
         
