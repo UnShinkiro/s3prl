@@ -38,7 +38,7 @@ class UpstreamExpert(nn.Module):
         Main.using("CUDA")
         Main.using("Random")
         Main.eval('@load "/srv/scratch/z5195063/360hModel_v3.bson" trained_model post_net')
-        Main.eval('trained_model = trained_model |> gpu')
+        #Main.eval('trained_model = trained_model |> gpu')
 
         print(
             f"{self.name} - You can use model_config to construct your customized model: {model_config}"
