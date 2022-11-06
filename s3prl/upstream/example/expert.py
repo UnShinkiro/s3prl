@@ -37,7 +37,12 @@ class UpstreamExpert(nn.Module):
         Main.using("BSON: @load")
         Main.using("CUDA")
         Main.using("Random")
-        Main.eval('@load "/srv/scratch/z5195063/360hModel_v3.bson" trained_model post_net')
+        Main.using("DiffEqFlux")
+        Main.using("DifferentialEquations")
+        Main.eval('@load "/srv/scratch/z5195063/devNODEModel.bson" prenet neural_layer post_net')
+        Main.eval('lspan = (0.0f0,1.0f0)')
+        Main.eval('node = NeuralODE(neural_layer,lspan,Tsit5(),save_start=false,saveat=1,reltol=1e-7,abstol=1e-9)')
+        Main.eval('node_apc = Chain(prenet, node)')
         #Main.eval('trained_model = trained_model |> gpu')
 
         print(
@@ -87,7 +92,7 @@ class UpstreamExpert(nn.Module):
             #Main.eval('print(typeof(data1))')
             #Main.eval('CUDA.allowscalar(true)')
             #Main.eval('data = data |> gpu')
-            feature = Main.eval(f'feature = [idx <= size(data)[1] ? trained_model((data[idx])) : zeros(Float32,512) for idx=1:{length}]')
+            feature = Main.eval(f'feature = [idx <= size(data)[1] ? node_apc((data[idx])) : zeros(Float32,512) for idx=1:{length}]')
             print(np.shape(feature))
             ret_feature.append(feature)
         
