@@ -33,6 +33,7 @@ class UpstreamExpert(nn.Module):
         self.name = "[Example UpstreamExpert]"
 
         Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
+        Main.eval('print("Benchmarking with NODE-APC")')
         Main.eval('print')
         Main.using("Flux")
         Main.using("BSON: @load")
@@ -94,6 +95,7 @@ class UpstreamExpert(nn.Module):
             #Main.eval('CUDA.allowscalar(true)')
             #Main.eval('data = data |> gpu')
             feature = Main.eval(f'feature = [idx <= size(data)[1] ? node_apc((data[idx])) : zeros(Float32,512) for idx=1:{length}]')
+            feature = np.reshape(feature, (length,512))
             print(np.shape(feature))
             ret_feature.append(feature)
         
