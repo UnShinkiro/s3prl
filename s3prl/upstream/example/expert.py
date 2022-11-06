@@ -33,15 +33,16 @@ class UpstreamExpert(nn.Module):
         self.name = "[Example UpstreamExpert]"
 
         Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
+        Main.eval('print')
         Main.using("Flux")
         Main.using("BSON: @load")
         Main.using("CUDA")
         Main.using("Random")
         Main.using("DiffEqFlux")
         Main.using("DifferentialEquations")
-        Main.eval('@load "/srv/scratch/z5195063/devNODEModel.bson" prenet neural_layer post_net')
+        Main.eval('@load "/srv/scratch/z5195063/devNODEModel.bson" prenet trained_model post_net')
         Main.eval('lspan = (0.0f0,1.0f0)')
-        Main.eval('node = NeuralODE(neural_layer,lspan,Tsit5(),save_start=false,saveat=1,reltol=1e-7,abstol=1e-9)')
+        Main.eval('node = NeuralODE(trained_model,lspan,Tsit5(),save_start=false,saveat=1,reltol=1e-7,abstol=1e-9)')
         Main.eval('node_apc = Chain(prenet, node)')
         #Main.eval('trained_model = trained_model |> gpu')
 
