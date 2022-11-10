@@ -25,14 +25,14 @@ class UpstreamExpert(nn.Module):
                 Can be assigned by the -g option in run_downstream.py
         """
         super().__init__()
-        file = open('/home/z5195063/master/config.pkl', 'rb')
+        file = open('/g/data/wa66/Tong/config.pkl', 'rb')
         config = pickle.load(file)
         file.close()
 
         self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
         self.name = "[Example UpstreamExpert]"
 
-        Main.eval('using Pkg; Pkg.activate("/home/z5195063/master/NODE-APC")')
+        Main.eval('using Pkg; Pkg.activate("/g/data/wa66/Tong/NODE-APC")')
         Main.eval('print("Benchmarking with NODE-APC")')
         Main.eval('print')
         Main.using("Flux")
@@ -41,7 +41,7 @@ class UpstreamExpert(nn.Module):
         Main.using("Random")
         Main.using("DiffEqFlux")
         Main.using("DifferentialEquations")
-        Main.eval('@load "/srv/scratch/z5195063/devNODEModel.bson" prenet trained_model post_net')
+        Main.eval('@load "/g/data/wa66/Tong/devNODEModel.bson" prenet trained_model post_net')
         Main.eval('lspan = (0.0f0,1.0f0)')
         Main.eval('node = NeuralODE(trained_model,lspan,Tsit5(),save_start=false,saveat=1,reltol=1e-7,abstol=1e-9)')
         Main.eval('node_apc = Chain(prenet, node)')
@@ -78,11 +78,11 @@ class UpstreamExpert(nn.Module):
         feat_lengths = torch.LongTensor(feat_lengths)
         features = features.cpu().numpy()
         
-        print('Before: ', np.shape(features))
+        #print('Before: ', np.shape(features))
         input_dim = np.shape(features)[-1]
         length = np.shape(features)[-2]
         features = np.reshape(features, (-1,length,input_dim))
-        print('After: ', np.shape(features))
+        #print('After: ', np.shape(features))
         ret_feature = []
         for count, file in enumerate(features):
             Main.eval('Flux.reset!(trained_model)')
@@ -96,11 +96,11 @@ class UpstreamExpert(nn.Module):
             #Main.eval('data = data |> gpu')
             feature = Main.eval(f'feature = [idx <= size(data)[1] ? node_apc((data[idx])) : zeros(Float32,512) for idx=1:{length}]')
             feature = np.reshape(feature, (length,512))
-            print(np.shape(feature))
+            #print(np.shape(feature))
             ret_feature.append(feature)
         
         ret_feature = np.asarray(ret_feature)
-        print(np.shape(ret_feature))
+        #print(np.shape(ret_feature))
         ret_feature = torch.from_numpy(ret_feature).cuda()
 
         # The "hidden_states" key will be used as default in many cases
