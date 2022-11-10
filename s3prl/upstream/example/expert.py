@@ -32,6 +32,8 @@ class UpstreamExpert(nn.Module):
         self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
         self.name = "[Example UpstreamExpert]"
 
+        print("using 360h trained")
+
         Main.eval('using Pkg; Pkg.activate("/g/data/wa66/Tong/NODE-APC")')
         Main.using("Flux")
         Main.using("BSON: @load")
