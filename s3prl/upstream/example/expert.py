@@ -32,7 +32,7 @@ class UpstreamExpert(nn.Module):
         self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
         self.name = "[Example UpstreamExpert]"
 
-        Main.eval('using Pkg; Pkg.activate("/home/561/ts7017/NODE-APC")')
+        Main.eval('using Pkg; Pkg.activate("/g/data/wa66/Tong/NODE-APC")')
         Main.using("Flux")
         Main.using("BSON: @load")
         Main.using("CUDA")
@@ -71,11 +71,11 @@ class UpstreamExpert(nn.Module):
         feat_lengths = torch.LongTensor(feat_lengths)
         features = features.cpu().numpy()
         
-        print('Before: ', np.shape(features))
+        #print('Before: ', np.shape(features))
         input_dim = np.shape(features)[-1]
         length = np.shape(features)[-2]
         features = np.reshape(features, (-1,length,input_dim))
-        print('After: ', np.shape(features))
+        #print('After: ', np.shape(features))
         ret_feature = []
         for count, file in enumerate(features):
             Main.eval('Flux.reset!(trained_model)')
@@ -88,11 +88,11 @@ class UpstreamExpert(nn.Module):
             #Main.eval('CUDA.allowscalar(true)')
             #Main.eval('data = data |> gpu')
             feature = Main.eval(f'feature = [idx <= size(data)[1] ? trained_model((data[idx])) : zeros(Float32,512) for idx=1:{length}]')
-            print(np.shape(feature))
+          #  print(np.shape(feature))
             ret_feature.append(feature)
         
         ret_feature = np.asarray(ret_feature)
-        print(np.shape(ret_feature))
+        #print(np.shape(ret_feature))
         ret_feature = torch.from_numpy(ret_feature).cuda()
 
         # The "hidden_states" key will be used as default in many cases
