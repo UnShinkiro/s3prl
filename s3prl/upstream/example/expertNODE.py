@@ -32,6 +32,8 @@ class UpstreamExpert(nn.Module):
         self.preprocessor, feat_dim = create_transform(config["data"]["audio"])
         self.name = "[Example UpstreamExpert]"
 
+        print("using NODE-APC")
+
         Main.eval('using Pkg; Pkg.activate("/g/data/wa66/Tong/NODE-APC")')
         Main.eval('print("Benchmarking with NODE-APC")')
         Main.eval('print')
