@@ -41,7 +41,7 @@ class UpstreamExpert(nn.Module):
         Main.using("Random")
         Main.using("DiffEqFlux")
         Main.using("DifferentialEquations")
-        Main.eval('@load "/g/data/wa66/Tong/devNODEModel.bson" prenet trained_model post_net')
+        Main.eval('@load "/g/data/wa66/Tong/devNODEmodel.bson" prenet trained_model post_net')
         Main.eval('lspan = (0.0f0,1.0f0)')
         Main.eval('node = NeuralODE(trained_model,lspan,Tsit5(),save_start=false,saveat=1,reltol=1e-7,abstol=1e-9)')
         Main.eval('node_apc = Chain(prenet, node)')
